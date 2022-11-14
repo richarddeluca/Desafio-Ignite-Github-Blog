@@ -65,7 +65,7 @@ export function HomePage() {
   return (
     <HomeContainer>
       <Profile className="profile">
-        <img className="avatar" src="avatar.jpeg" alt="" />
+        <img className="avatar" src={user?.imgUrl} alt="" />
         <div>
           <h2>{user?.name || 'Meu nome'}</h2>
           <p className="bioText">{user?.bio || 'breve resumo sobre quem sou escrito por mim'}</p>
