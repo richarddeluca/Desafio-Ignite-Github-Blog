@@ -9,6 +9,7 @@ import { useEffect, useState } from "react"
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ReactMarkdown from "react-markdown";
+import { useForm } from "react-hook-form";
 
 interface UserInfo {
   name: string
@@ -27,6 +28,8 @@ interface Post {
 }
 
 export function HomePage() {
+
+  const { register, handleSubmit } = useForm();
 
   const [user, setUser] = useState<UserInfo>()
   const [posts, setPosts] = useState<Post[]>([]);
@@ -47,20 +50,30 @@ export function HomePage() {
   }
 
   async function fetchPosts(query = "") {
-    const response = await api.get(
-      `search/issues?q=${query ? query : ""
-      }%20repo:${"richarddeluca"}/Desafio-Ignite-Github-Blog`
-    );
-    setPosts(response.data.items);
-    setqtdPosts(response.data.total_count);
+    try {
+      const response = await api.get("/search/issues", {
+        params: {
+          q: `repo:richarddeluca/Desafio-Ignite-Github-Blog is:issue ${query}`,
+        },
+      });
+      setPosts(response.data.items);
+      setqtdPosts(response.data.total_count);
+    } catch (error) {
+      console.log(error);
+    }
   }
-
   useEffect(() => {
     fetchUser()
     fetchPosts()
   }, [])
 
-
+  const handleSearch = async (data: any) => {
+    try {
+      fetchPosts(data.query)
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <HomeContainer>
@@ -89,12 +102,17 @@ export function HomePage() {
           </a>
         </div>
       </Profile>
-      <PublicationsSection>
+      <PublicationsSection onSubmit={handleSubmit(handleSearch)}>
         <header>
           <h3>Publicações</h3>
           <p className="numberOfPublications">{qtdPosts === 1 ? `${qtdPosts} publicação` : `${qtdPosts} publicações`}</p>
         </header>
-        <input className="searchInput" type="text" placeholder="Buscar conteúdo" />
+        <input
+          className="searchInput"
+          type="text"
+          placeholder="Buscar conteúdo"
+          {...register("query")}
+        />
       </PublicationsSection>
       <PostsContainer>
         {posts && posts.map((post) => {
@@ -108,7 +126,7 @@ export function HomePage() {
                 })}</p>
               </header>
               <ReactMarkdown>{
-                post.body.split(" ", 30).join(" ").concat("...")
+                post.body ? post.body.split(" ", 30).join(" ").concat("...") : 'Hi lorena'
               }</ReactMarkdown>
             </Post>
           )

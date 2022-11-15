@@ -75,7 +75,7 @@ export const Profile = styled('section', {
   },
 })
 
-export const PublicationsSection = styled('section', {
+export const PublicationsSection = styled('form', {
   marginTop: '4.5rem',
 
   header: {
